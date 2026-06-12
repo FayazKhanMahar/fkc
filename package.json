@@ -1,0 +1,17 @@
+{
+  "name": "fayaz-khan-consultancy",
+  "version": "1.0.0",
+  "description": "Fayaz Khan Consultancy — study-abroad consultancy for Master's (ME) & Ph.D. applicants. Node.js + built-in SQLite backend.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --experimental-sqlite src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2"
+  }
+}

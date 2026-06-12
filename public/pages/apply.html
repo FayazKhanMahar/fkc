@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply — Fayaz Khan Consultancy</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+  <link rel="icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0B1F3A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="brand"><span class="seal">F</span><span><b>Fayaz Khan</b><span>Consultancy</span></span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/pages/services.html">Services</a></li>
+        <li><a href="/pages/apply.html" class="active">Apply</a></li>
+        <li><a href="/pages/about.html">About</a></li>
+        <li><a href="/pages/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta" id="navAuth"></div>
+      <button class="nav-toggle" aria-label="Menu"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav>
+
+  <section class="page-head">
+    <div class="container">
+      <h1>Start your application</h1>
+      <p>Tell us about yourself and your goals. We'll review your profile and come back with an honest read on your options — no cost, no obligation.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:760px;">
+      <div class="form-wrap">
+        <div class="alert" id="formAlert"></div>
+        <form id="applyForm" novalidate>
+          <div class="field-row">
+            <div class="field">
+              <label for="full_name">Full name *</label>
+              <input type="text" id="full_name" name="full_name" placeholder="e.g. Ali Raza" required />
+            </div>
+            <div class="field">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" placeholder="you@email.com" required />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="phone">Phone / WhatsApp</label>
+              <input type="text" id="phone" name="phone" placeholder="+92 ..." />
+            </div>
+            <div class="field">
+              <label for="degree">Degree you're applying for *</label>
+              <select id="degree" name="degree" required>
+                <option value="">Choose…</option>
+                <option>ME / Master's</option>
+                <option>PhD</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="field">Field of study</label>
+              <input type="text" id="field" name="field" placeholder="e.g. Mechanical Engineering" />
+            </div>
+            <div class="field">
+              <label for="country">Target country</label>
+              <input type="text" id="country" name="country" placeholder="e.g. Germany" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="gpa">CGPA / Grade</label>
+              <input type="text" id="gpa" name="gpa" placeholder="e.g. 3.6 / 4.0" />
+            </div>
+            <div class="field">
+              <label for="ielts">IELTS / TOEFL (if any)</label>
+              <input type="text" id="ielts" name="ielts" placeholder="e.g. IELTS 7.0" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="statement">Tell us about your goals</label>
+            <textarea id="statement" name="statement" placeholder="Your background, what you want to study, and any deadlines you're working towards."></textarea>
+          </div>
+          <button type="submit" class="btn btn-gold btn-block">Submit application <i class="fas fa-paper-plane"></i></button>
+          <p class="form-note">Already have an account? <a href="/pages/login.html">Log in</a> to track your applications.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom" style="border:0;justify-content:center;">
+        <span>© 2026 Fayaz Khan Consultancy · <a href="mailto:khanfayazmahar31@gmail.com" style="display:inline;color:var(--gold-bright);">khanfayazmahar31@gmail.com</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+  <script>
+    document.getElementById('applyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const alert = document.getElementById('formAlert');
+      const f = e.target;
+      const payload = Object.fromEntries(new FormData(f).entries());
+      try {
+        const btn = f.querySelector('button[type=submit]');
+        btn.disabled = true; btn.style.opacity = .7;
+        await api('/api/applications', 'POST', payload);
+        showAlert(alert, 'success', 'Application received! We\'ll review your profile and email you shortly.');
+        f.reset();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        btn.disabled = false; btn.style.opacity = 1;
+      } catch (err) {
+        showAlert(alert, 'error', err.message);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const btn = f.querySelector('button[type=submit]');
+        btn.disabled = false; btn.style.opacity = 1;
+      }
+    });
+  </script>
+</body>
+</html>

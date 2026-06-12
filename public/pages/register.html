@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create account — Fayaz Khan Consultancy</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+  <link rel="icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0B1F3A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="brand"><span class="seal">F</span><span><b>Fayaz Khan</b><span>Consultancy</span></span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/pages/services.html">Services</a></li>
+        <li><a href="/pages/apply.html">Apply</a></li>
+        <li><a href="/pages/about.html">About</a></li>
+        <li><a href="/pages/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta" id="navAuth"></div>
+      <button class="nav-toggle" aria-label="Menu"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav>
+
+  <div class="auth">
+    <aside class="auth-aside">
+      <p class="eyebrow on-dark">Get started</p>
+      <h2>One account. Every step to studying abroad.</h2>
+      <p>Create a free account to apply, track your progress, and work with an advisor who knows your file.</p>
+      <ul>
+        <li><i class="fas fa-circle-check"></i> Free profile review</li>
+        <li><i class="fas fa-circle-check"></i> Funded Master's &amp; Ph.D. options</li>
+        <li><i class="fas fa-circle-check"></i> Guidance from shortlist to visa</li>
+      </ul>
+    </aside>
+    <main class="auth-main">
+      <div class="auth-card">
+        <h1>Create your account</h1>
+        <p class="sub">It takes less than a minute.</p>
+        <div class="alert" id="formAlert"></div>
+        <form id="registerForm" novalidate>
+          <div class="field">
+            <label for="name">Full name</label>
+            <input type="text" id="name" name="name" placeholder="e.g. Ali Raza" required />
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@email.com" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="At least 6 characters" required />
+          </div>
+          <button type="submit" class="btn btn-gold btn-block">Create account <i class="fas fa-arrow-right"></i></button>
+          <p class="form-note">Already have an account? <a href="/pages/login.html">Log in</a></p>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const alert = document.getElementById('formAlert');
+      const payload = Object.fromEntries(new FormData(e.target).entries());
+      try {
+        await api('/api/register', 'POST', payload);
+        location.href = '/pages/apply.html';
+      } catch (err) {
+        showAlert(alert, 'error', err.message);
+      }
+    });
+  </script>
+</body>
+</html>

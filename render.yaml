@@ -1,0 +1,25 @@
+# Render deployment blueprint for Fayaz Khan Consultancy.
+# With this file in your repo, Render can configure everything automatically.
+services:
+  - type: web
+    name: fayaz-khan-consultancy
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    # A persistent disk so the SQLite database survives redeploys.
+    disk:
+      name: fkc-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: SESSION_SECRET
+        generateValue: true       # Render generates a strong random secret
+      - key: ADMIN_EMAIL
+        sync: false               # you set this in the dashboard
+      - key: ADMIN_PASSWORD
+        sync: false               # you set this in the dashboard

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Fayaz Khan Consultancy</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+  <link rel="icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#0B1F3A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="brand"><span class="seal">F</span><span><b>Fayaz Khan</b><span>Consultancy</span></span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/pages/services.html">Services</a></li>
+        <li><a href="/pages/about.html">About</a></li>
+        <li><a href="/pages/contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-cta" id="navAuth"></div>
+      <button class="nav-toggle" aria-label="Menu"><i class="fas fa-bars"></i></button>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      <div class="admin-bar">
+        <div>
+          <p class="eyebrow">Admin dashboard</p>
+          <h1 style="font-size:2rem;">Applications &amp; enquiries</h1>
+        </div>
+      </div>
+
+      <div class="kpi" id="kpi">
+        <div class="card"><b id="kpiStudents">—</b><span>Registered students</span></div>
+        <div class="card"><b id="kpiApps">—</b><span>Applications</span></div>
+        <div class="card"><b id="kpiMsgs">—</b><span>Messages</span></div>
+      </div>
+
+      <div class="admin-tabs">
+        <button data-tab="applications" class="active">Applications</button>
+        <button data-tab="messages">Messages</button>
+        <button data-tab="students">Students</button>
+      </div>
+
+      <div id="panel" class="table-wrap">
+        <table id="dataTable"><thead></thead><tbody><tr><td style="padding:2rem;">Loading…</td></tr></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/main.js"></script>
+  <script>
+    let currentTab = 'applications';
+    const statuses = ['new','in-review','submitted','accepted','closed'];
+
+    async function guard() {
+      try {
+        const { user } = await api('/api/me');
+        if (!user || user.role !== 'admin') { location.href = '/pages/login.html'; return false; }
+        return true;
+      } catch { location.href = '/pages/login.html'; return false; }
+    }
+
+    async function loadSummary() {
+      const s = await api('/api/admin/summary');
+      document.getElementById('kpiStudents').textContent = s.students;
+      document.getElementById('kpiApps').textContent = s.applications;
+      document.getElementById('kpiMsgs').textContent = s.messages;
+    }
+
+    function fmtDate(d) { return (d || '').replace('T',' ').slice(0,16); }
+
+    async function renderTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.admin-tabs button').forEach(b =>
+        b.classList.toggle('active', b.dataset.tab === tab));
+      const table = document.getElementById('dataTable');
+      const thead = table.querySelector('thead');
+      const tbody = table.querySelector('tbody');
+      tbody.innerHTML = '<tr><td style="padding:2rem;">Loading…</td></tr>';
+
+      if (tab === 'applications') {
+        const { applications } = await api('/api/admin/applications');
+        thead.innerHTML = '<tr><th>Name</th><th>Email</th><th>Degree</th><th>Field</th><th>Country</th><th>Submitted</th><th>Status</th></tr>';
+        tbody.innerHTML = applications.length ? applications.map(a => `
+          <tr>
+            <td><b>${escapeHtml(a.full_name)}</b>${a.phone ? '<br><span style="color:var(--muted);font-size:.82rem;">'+escapeHtml(a.phone)+'</span>':''}</td>
+            <td>${escapeHtml(a.email)}</td>
+            <td>${escapeHtml(a.degree)}</td>
+            <td>${escapeHtml(a.field||'—')}</td>
+            <td>${escapeHtml(a.country||'—')}</td>
+            <td style="white-space:nowrap;">${fmtDate(a.created_at)}</td>
+            <td>
+              <select data-id="${a.id}" class="statusSel" style="padding:.4rem .6rem;border-radius:8px;border:1.5px solid var(--line);">
+                ${statuses.map(s => `<option value="${s}" ${s===a.status?'selected':''}>${s}</option>`).join('')}
+              </select>
+            </td>
+          </tr>`).join('') : '<tr><td colspan="7" style="padding:2rem;color:var(--muted);">No applications yet.</td></tr>';
+        document.querySelectorAll('.statusSel').forEach(sel =>
+          sel.addEventListener('change', async () => {
+            await api(`/api/admin/applications/${sel.dataset.id}/status`, 'POST', { status: sel.value });
+          }));
+      }
+
+      else if (tab === 'messages') {
+        const { messages } = await api('/api/admin/messages');
+        thead.innerHTML = '<tr><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Received</th></tr>';
+        tbody.innerHTML = messages.length ? messages.map(m => `
+          <tr>
+            <td><b>${escapeHtml(m.name)}</b></td>
+            <td>${escapeHtml(m.email)}</td>
+            <td>${escapeHtml(m.subject||'—')}</td>
+            <td style="max-width:340px;">${escapeHtml(m.body)}</td>
+            <td style="white-space:nowrap;">${fmtDate(m.created_at)}</td>
+          </tr>`).join('') : '<tr><td colspan="5" style="padding:2rem;color:var(--muted);">No messages yet.</td></tr>';
+      }
+
+      else if (tab === 'students') {
+        const { students } = await api('/api/admin/students');
+        thead.innerHTML = '<tr><th>Name</th><th>Email</th><th>Joined</th></tr>';
+        tbody.innerHTML = students.length ? students.map(s => `
+          <tr><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.email)}</td><td style="white-space:nowrap;">${fmtDate(s.created_at)}</td></tr>`).join('')
+          : '<tr><td colspan="3" style="padding:2rem;color:var(--muted);">No students yet.</td></tr>';
+      }
+    }
+
+    document.querySelectorAll('.admin-tabs button').forEach(b =>
+      b.addEventListener('click', () => renderTab(b.dataset.tab)));
+
+    (async () => {
+      if (!(await guard())) return;
+      await loadSummary();
+      await renderTab('applications');
+    })();
+  </script>
+</body>
+</html>
