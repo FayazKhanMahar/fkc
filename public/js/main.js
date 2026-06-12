@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     toggle.addEventListener('click', () => links.classList.toggle('open'));
   }
 
+  // Floating WhatsApp button (appears on every page)
+  addWhatsAppButton();
+
   // Auth-aware nav: swap Login/Register for the user's name + Logout
   refreshAuthNav();
 });
@@ -58,4 +61,19 @@ function escapeHtml(str = '') {
 function showAlert(el, type, msg) {
   el.className = `alert ${type} show`;
   el.textContent = msg;
+}
+
+// Creates the floating WhatsApp chat button on every page.
+function addWhatsAppButton() {
+  if (document.querySelector('.wa-float')) return; // avoid duplicates
+  const phone = '923110267925'; // +92 311 0267925, no plus or spaces
+  const msg = encodeURIComponent("Hi, I'd like help applying for study abroad");
+  const a = document.createElement('a');
+  a.className = 'wa-float';
+  a.href = `https://wa.me/${phone}?text=${msg}`;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.setAttribute('aria-label', 'Chat with us on WhatsApp');
+  a.innerHTML = '<i class="fab fa-whatsapp"></i><span class="wa-label">Chat with us</span>';
+  document.body.appendChild(a);
 }
